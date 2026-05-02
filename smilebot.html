@@ -1,429 +1,348 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SmileBot — Bright Smile Dental AI Assistant | Built by De Forja</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>De Forja – SmileBot AI Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Sora:wght@600;700&display=swap" rel="stylesheet"/>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  min-height: 100vh;
+  background: linear-gradient(145deg, #0c1220 0%, #1a1a2e 50%, #16213e 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  font-family: 'DM Sans', system-ui, sans-serif;
+}
+@keyframes bounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-5px); }
+}
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
 
-  body {
-    min-height: 100vh;
-    background: linear-gradient(145deg, #0c1220 0%, #1a1a2e 50%, #16213e 100%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    font-family: 'DM Sans', system-ui, sans-serif;
-  }
-
-  .badge {
-    background: rgba(0,255,136,0.08);
-    border: 1px solid rgba(0,255,136,0.2);
-    border-radius: 12px;
-    padding: 14px 24px;
-    margin-bottom: 20px;
-    max-width: 440px;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .badge-logo {
-    font-family: 'Sora', sans-serif;
-    font-weight: 700;
-    font-size: 13px;
-    letter-spacing: 2px;
-    color: #00ff88;
-  }
-
-  .badge-sub { font-size: 13px; color: rgba(255,255,255,0.5); }
-
-  .chat-window {
-    width: 100%;
-    max-width: 440px;
-    background: #ffffff;
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 25px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
-    display: flex;
-    flex-direction: column;
-    height: min(700px, 82vh);
-  }
-
-  .chat-header {
-    background: linear-gradient(135deg, #1e6b4a 0%, #2a9d6a 100%);
-    padding: 18px 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .header-avatar {
-    width: 42px; height: 42px; border-radius: 50%;
-    background: rgba(255,255,255,0.2);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px; flex-shrink: 0;
-  }
-
-  .header-name { color: #fff; font-weight: 600; font-size: 15px; }
-
-  .header-status {
-    color: rgba(255,255,255,0.7); font-size: 12px; margin-top: 2px;
-    display: flex; align-items: center; gap: 4px;
-  }
-
-  .status-dot {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: #5cff9d; display: inline-block;
-  }
-
-  .messages {
-    flex: 1; overflow-y: auto; padding: 16px;
-    display: flex; flex-direction: column; gap: 12px;
-    background: #f6f7f9;
-  }
-
-  .messages::-webkit-scrollbar { width: 4px; }
-  .messages::-webkit-scrollbar-track { background: transparent; }
-  .messages::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
-
-  .msg-row { display: flex; align-items: flex-end; gap: 8px; }
-  .msg-row.user { justify-content: flex-end; }
-  .msg-row.bot { justify-content: flex-start; }
-
-  .msg-avatar {
-    width: 28px; height: 28px; border-radius: 50%;
-    background: #2a9d6a; display: flex; align-items: center;
-    justify-content: center; font-size: 13px; flex-shrink: 0;
-  }
-
-  .msg-bubble {
-    max-width: 78%; padding: 10px 14px;
-    font-size: 14px; line-height: 1.55;
-    white-space: pre-wrap; word-wrap: break-word;
-  }
-
-  .msg-bubble.bot-msg {
-    background: #ffffff; color: #1a1a2e;
-    border-radius: 16px 16px 16px 4px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-  }
-
-  .msg-bubble.user-msg {
-    background: #2a9d6a; color: #fff;
-    border-radius: 16px 16px 4px 16px;
-  }
-
-  .typing-row { display: none; align-items: flex-end; gap: 8px; }
-  .typing-row.active { display: flex; }
-
-  .typing-dots {
-    background: #ffffff; padding: 12px 18px;
-    border-radius: 16px 16px 16px 4px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-    display: flex; gap: 5px;
-  }
-
-  .typing-dot {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: #b0b8c4; animation: bounce 1.2s infinite;
-  }
-  .typing-dot:nth-child(2) { animation-delay: 0.15s; }
-  .typing-dot:nth-child(3) { animation-delay: 0.3s; }
-
-  @keyframes bounce {
-    0%, 60%, 100% { transform: translateY(0); }
-    30% { transform: translateY(-5px); }
-  }
-
-  .suggestions {
-    padding: 8px 16px; display: flex; flex-wrap: wrap; gap: 6px;
-    background: #f6f7f9; border-top: 1px solid #eef0f3;
-  }
-  .suggestions.hidden { display: none; }
-
-  .suggest-btn {
-    padding: 7px 14px; border-radius: 20px;
-    border: 1px solid #dde1e8; background: #fff;
-    color: #2a9d6a; font-size: 12px; font-weight: 500;
-    cursor: pointer; transition: all 0.2s;
-    font-family: 'DM Sans', system-ui, sans-serif;
-  }
-  .suggest-btn:hover {
-    background: #2a9d6a; color: #fff; border-color: #2a9d6a;
-  }
-
-  .input-area {
-    padding: 12px 16px; background: #ffffff;
-    border-top: 1px solid #eef0f3;
-    display: flex; gap: 8px; align-items: center;
-  }
-
-  .input-area input {
-    flex: 1; padding: 10px 14px; border-radius: 24px;
-    border: 1px solid #e2e5ea; background: #f6f7f9;
-    font-size: 14px; color: #1a1a2e; outline: none;
-    font-family: 'DM Sans', system-ui, sans-serif;
-  }
-  .input-area input:focus { border-color: #2a9d6a; }
-
-  .send-btn {
-    width: 40px; height: 40px; border-radius: 50%;
-    background: #e2e5ea; border: none; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.2s; flex-shrink: 0;
-  }
-  .send-btn.active { background: #2a9d6a; }
-  .send-btn svg { stroke: #b0b8c4; transition: stroke 0.2s; }
-  .send-btn.active svg { stroke: #fff; }
-
-  .footer {
-    margin-top: 20px; text-align: center;
-    font-size: 12px; color: rgba(255,255,255,0.3);
-  }
-  .footer span { color: #00ff88; font-weight: 600; }
+#badge {
+  background: rgba(0,255,136,0.08);
+  border: 1px solid rgba(0,255,136,0.2);
+  border-radius: 12px;
+  padding: 14px 24px;
+  margin-bottom: 20px;
+  max-width: 440px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+#chat-window {
+  width: 100%;
+  max-width: 440px;
+  background: #ffffff;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 25px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
+  display: flex;
+  flex-direction: column;
+  height: min(680px, 80vh);
+}
+#header {
+  background: linear-gradient(135deg, #1e6b4a 0%, #2a9d6a 100%);
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+#messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #f6f7f9;
+}
+#suggestions {
+  padding: 8px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  background: #f6f7f9;
+  border-top: 1px solid #eef0f3;
+}
+#input-area {
+  padding: 12px 16px;
+  background: #ffffff;
+  border-top: 1px solid #eef0f3;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+#user-input {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 24px;
+  border: 1px solid #e2e5ea;
+  background: #f6f7f9;
+  font-size: 14px;
+  color: #1a1a2e;
+  outline: none;
+  font-family: 'DM Sans', system-ui, sans-serif;
+}
+#user-input:focus { border-color: #2a9d6a; }
+#send-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e2e5ea;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+#send-btn.active { background: #2a9d6a; cursor: pointer; }
+.msg-row { display: flex; align-items: flex-end; gap: 8px; }
+.msg-row.user { justify-content: flex-end; }
+.avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: #2a9d6a;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; flex-shrink: 0;
+}
+.bubble {
+  max-width: 78%;
+  padding: 10px 14px;
+  font-size: 14px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+.bubble.bot {
+  border-radius: 16px 16px 16px 4px;
+  background: #ffffff;
+  color: #1a1a2e;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.bubble.user {
+  border-radius: 16px 16px 4px 16px;
+  background: #2a9d6a;
+  color: #fff;
+}
+.suggestion-btn {
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: 1px solid #dde1e8;
+  background: #fff;
+  color: #2a9d6a;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  transition: all 0.2s;
+}
+.suggestion-btn:hover { background: #2a9d6a; color: #fff; border-color: #2a9d6a; }
+.typing-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #b0b8c4;
+  display: inline-block;
+  animation: bounce 1.2s infinite;
+}
+#footer {
+  margin-top: 20px;
+  text-align: center;
+  max-width: 440px;
+  width: 100%;
+  font-size: 12px;
+  color: rgba(255,255,255,0.3);
+  line-height: 1.6;
+}
 </style>
 </head>
 <body>
 
-<div class="badge">
-  <span class="badge-logo">DE FORJA</span>
-  <span class="badge-sub">AI Chatbot Demo</span>
+<div id="badge">
+  <div>
+    <span style="font-family:'Sora',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;color:#00ff88;">DE FORJA</span>
+    <span style="font-size:13px;color:rgba(255,255,255,0.5);margin-left:8px;">SmileBot Live Demo</span>
+  </div>
+  <button onclick="document.getElementById('badge').style.display='none'" style="background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer;font-size:16px;padding:4px;">✕</button>
 </div>
 
-<div class="chat-window">
-  <div class="chat-header">
-    <div class="header-avatar">🦷</div>
-    <div>
-      <div class="header-name">Bright Smile Dental</div>
-      <div class="header-status"><span class="status-dot"></span> SmileBot is online</div>
-    </div>
-  </div>
-
-  <div class="messages" id="messages">
-    <div class="msg-row bot">
-      <div class="msg-avatar">🦷</div>
-      <div class="msg-bubble bot-msg">Hi there! 😊 Welcome to Bright Smile Dental. I'm SmileBot, your virtual assistant.
-
-I can help you with:
-• Booking appointments
-• Service & pricing info
-• Office hours & location
-• Insurance questions
-• Emergency guidance
-
-How can I help you today?</div>
-    </div>
-    <div class="typing-row" id="typing">
-      <div class="msg-avatar">🦷</div>
-      <div class="typing-dots">
-        <div class="typing-dot"></div>
-        <div class="typing-dot"></div>
-        <div class="typing-dot"></div>
+<div id="chat-window">
+  <div id="header">
+    <div style="width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🦷</div>
+    <div style="flex:1;">
+      <div style="color:#fff;font-weight:600;font-size:15px;line-height:1.2;">Dental Sanctuary of Fanwood</div>
+      <div style="color:rgba(255,255,255,0.7);font-size:12px;margin-top:2px;display:flex;align-items:center;gap:4px;">
+        <span style="width:7px;height:7px;border-radius:50%;background:#5cff9d;display:inline-block;"></span>
+        SmileBot is online
       </div>
     </div>
   </div>
 
-  <div class="suggestions" id="suggestions">
-    <button class="suggest-btn" onclick="sendSuggestion(this)">Book a cleaning</button>
-    <button class="suggest-btn" onclick="sendSuggestion(this)">What are your hours?</button>
-    <button class="suggest-btn" onclick="sendSuggestion(this)">Do you take insurance?</button>
-    <button class="suggest-btn" onclick="sendSuggestion(this)">I have a toothache</button>
+  <div id="messages"></div>
+
+  <div id="suggestions">
+    <button class="suggestion-btn" onclick="sendMessage(this.textContent)">I'd like to book a cleaning</button>
+    <button class="suggestion-btn" onclick="sendMessage(this.textContent)">What are your hours?</button>
+    <button class="suggestion-btn" onclick="sendMessage(this.textContent)">Do you accept my insurance?</button>
+    <button class="suggestion-btn" onclick="sendMessage(this.textContent)">I have a toothache, is this urgent?</button>
   </div>
 
-  <div class="input-area">
-    <input type="text" id="userInput" placeholder="Type your message..." onkeydown="if(event.key==='Enter')sendMessage()" oninput="updateBtn()">
-    <button class="send-btn" id="sendBtn" onclick="sendMessage()">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="22" y1="2" x2="11" y2="13"></line>
-        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+  <div id="input-area">
+    <input id="user-input" type="text" placeholder="Type your message..." onkeydown="if(event.key==='Enter') sendMessage(document.getElementById('user-input').value)" oninput="updateBtn()"/>
+    <button id="send-btn" onclick="sendMessage(document.getElementById('user-input').value)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#b0b8c4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="send-icon">
+        <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
       </svg>
     </button>
   </div>
 </div>
 
-<div class="footer">Powered by <span>De Forja</span> AI Systems</div>
+<div id="footer">
+  Powered by <span style="color:#00ff88;font-weight:600;">De Forja</span> AI Systems &nbsp;·&nbsp; deforja.agency
+</div>
 
 <script>
-let isLoading = false;
+const SYSTEM_PROMPT = `You are SmileBot, the AI receptionist for Dental Sanctuary of Fanwood, a dental practice located at 250 South Ave, Suite 103, Fanwood, NJ 07023. Phone: (908) 490-6614.
+
+The practice is owned by Dr. Tanvi Patel and her colleague Dr. Priya Patel. Both are warm, gentle, and known for thorough patient care.
+
+Services offered:
+- Preventive care (exams, cleanings, digital X-rays, oral cancer screening)
+- Restorative dentistry (composite fillings, crowns, bridges)
+- Cosmetic dentistry (teeth whitening, veneers, bonding, smile makeovers)
+- Tooth replacement (dental implants, bridges, dentures)
+- Orthodontics (Clear Aligners / Invisalign)
+- Periodontics (gum disease prevention and treatment)
+- Children's dentistry
+- Emergency dental care
+
+Technology: Cavitron, digital X-rays, intra-oral cameras, panoramic X-rays.
+
+Insurance: We accept most major insurance plans including Aetna, BlueCross BlueShield, Cigna, Delta Dental, Guardian, and 100+ more in-network plans. For specific verification, ask the patient for their insurance provider and member ID and let them know the front desk will confirm coverage within one business day.
+
+Office hours: Please contact the office directly at (908) 490-6614 for current hours, as schedules may vary.
+
+Your role:
+1. Greet patients warmly and professionally
+2. Answer questions about services, location, insurance, and procedures
+3. Help patients book appointments by collecting: full name, phone number, reason for visit, and preferred date/time. After collecting all info, confirm warmly and let them know the front desk will reach out within one business day to finalize.
+4. For dental emergencies (severe pain, knocked-out tooth, swelling, bleeding that won't stop), advise them to call the office immediately at (908) 490-6614 or go to the nearest emergency room if outside office hours.
+5. For nervous or anxious patients, reassure them — both Dr. Tanvi and Dr. Priya are known for their gentle care.
+
+Tone: Warm, professional, concise. Use short paragraphs. Be helpful but never pushy. Use the patient's name once you know it. Never claim to be a human — if asked, you are SmileBot, an AI assistant for Dental Sanctuary of Fanwood.
+
+Never give specific medical or dental diagnoses. Always recommend an in-person consultation for diagnostic questions.`;
+
+let messages = [];
+let loading = false;
 let msgCount = 0;
-let bookingState = null;
-let bookingData = {};
 
-const responses = {
-  booking: {
-    start: "I'd love to help you book an appointment! 😊\n\nCould I get your full name to start?",
-    got_name: "Thanks, {name}! What type of appointment are you looking for?\n\n• General cleaning\n• Teeth whitening\n• Filling or crown\n• Consultation\n• Other",
-    got_service: "Great choice. What date and time work best for you?\n\nWe're available Monday–Friday 8am–6pm and Saturday 9am–2pm.",
-    got_time: "Perfect! Let me confirm your booking:\n\n📋 Name: {name}\n🦷 Service: {service}\n📅 Date/Time: {time}\n\nI've reserved this slot for you. You'll receive a confirmation text shortly. Is there anything else I can help with?",
-  },
-
-  hours: "Our office hours are:\n\n📅 Monday – Friday: 8:00 AM – 6:00 PM\n📅 Saturday: 9:00 AM – 2:00 PM\n📅 Sunday: Closed\n\nWe recommend booking in advance as slots fill up quickly, especially for Saturday appointments. Would you like to schedule a visit?",
-
-  insurance: "We accept most major insurance plans, including:\n\n✅ Delta Dental\n✅ Cigna\n✅ Aetna\n✅ MetLife\n✅ United Healthcare\n✅ Guardian\n\nFor specific coverage questions, our billing team can verify your benefits before your appointment. Would you like to book a visit, or do you have other questions?",
-
-  emergency: "I'm sorry to hear you're in pain. Here's what I recommend:\n\n🚨 For severe pain, swelling, or a knocked-out tooth — come in immediately or call our emergency line at (555) 123-4567.\n\n💊 For mild to moderate pain:\n• Take over-the-counter ibuprofen\n• Apply a cold compress to your cheek\n• Avoid very hot or cold foods\n\nWe keep emergency slots open every day. Would you like me to book you an urgent appointment?",
-
-  services: "Here's an overview of our services:\n\n🪥 General Cleaning — $120\n✨ Teeth Whitening — $299\n🦷 Fillings — from $150\n👑 Crowns — from $800\n🔧 Implants — from $2,500\n👶 Pediatric Dentistry — $95\n📐 Orthodontics — free consultation\n\nAll new patients receive a complimentary exam and X-rays on their first visit! Would you like to book an appointment?",
-
-  location: "You can find us at:\n\n📍 123 Main Street, Suite 200\n🅿️ Free parking available in the building garage\n🚇 2 blocks from Central Station\n\nWe're right above the coffee shop on the corner — you can't miss us! Need directions or want to book a visit?",
-
-  pricing: "Here are our most popular services and pricing:\n\n🪥 General Cleaning — $120\n✨ Professional Whitening — $299\n🦷 Composite Filling — from $150\n👑 Porcelain Crown — from $800\n🔍 Exam + X-rays — FREE for new patients\n\nWe also offer payment plans for larger treatments. Would you like to schedule an appointment?",
-
-  whitening: "Great question! We offer professional teeth whitening at $299 per session. Most patients see results 4-8 shades whiter in just one visit! ✨\n\nThe treatment takes about 60 minutes and results last 6-12 months with proper care.\n\nWould you like to book a whitening appointment?",
-
-  new_patient: "Welcome! We love new patients! 😊\n\nHere's what your first visit includes — completely FREE:\n\n✅ Comprehensive dental exam\n✅ Full set of digital X-rays\n✅ Personalized treatment plan\n✅ Insurance verification\n\nThe first appointment takes about 45 minutes. Would you like to schedule your free new patient exam?",
-
-  thanks: "You're welcome! 😊 Don't hesitate to reach out anytime you need us. Have a wonderful day, and remember — keep smiling! 🦷✨",
-
-  default: "Thanks for your message! I'd be happy to help. Here's what I can assist with:\n\n• 📅 Book an appointment\n• 🕐 Office hours & location\n• 🦷 Services & pricing\n• 💳 Insurance questions\n• 🚨 Emergency guidance\n\nWhat would you like to know more about?"
-};
-
-function getResponse(text) {
-  const lower = text.toLowerCase();
-
-  if (bookingState === 'waiting_name') {
-    bookingData.name = text.trim();
-    bookingState = 'waiting_service';
-    return responses.booking.got_name.replace('{name}', bookingData.name);
+function updateBtn() {
+  const val = document.getElementById('user-input').value.trim();
+  const btn = document.getElementById('send-btn');
+  const icon = document.getElementById('send-icon');
+  if (val && !loading) {
+    btn.classList.add('active');
+    icon.setAttribute('stroke', '#fff');
+  } else {
+    btn.classList.remove('active');
+    icon.setAttribute('stroke', '#b0b8c4');
   }
-
-  if (bookingState === 'waiting_service') {
-    bookingData.service = text.trim();
-    bookingState = 'waiting_time';
-    return responses.booking.got_service;
-  }
-
-  if (bookingState === 'waiting_time') {
-    bookingData.time = text.trim();
-    bookingState = null;
-    return responses.booking.got_time
-      .replace('{name}', bookingData.name)
-      .replace('{service}', bookingData.service)
-      .replace('{time}', bookingData.time);
-  }
-
-  if (lower.match(/book|appointment|schedule|reserve|cleaning/)) {
-    bookingState = 'waiting_name';
-    bookingData = {};
-    return responses.booking.start;
-  }
-
-  if (lower.match(/hour|open|close|when are you|what time|schedule/)) {
-    return responses.hours;
-  }
-
-  if (lower.match(/insurance|coverage|accept|plan|delta|cigna|aetna|metlife/)) {
-    return responses.insurance;
-  }
-
-  if (lower.match(/emergency|pain|hurt|ache|tooth.?ache|swollen|swelling|broken|knocked|bleeding|urgent/)) {
-    return responses.emergency;
-  }
-
-  if (lower.match(/service|offer|what do you do|treatment|procedure/)) {
-    return responses.services;
-  }
-
-  if (lower.match(/where|location|address|direction|find you|parking|map/)) {
-    return responses.location;
-  }
-
-  if (lower.match(/price|cost|how much|fee|charge|afford|pay|pricing/)) {
-    return responses.pricing;
-  }
-
-  if (lower.match(/whiten|bleach|bright|stain/)) {
-    return responses.whitening;
-  }
-
-  if (lower.match(/new patient|first time|first visit|never been|new here/)) {
-    return responses.new_patient;
-  }
-
-  if (lower.match(/thank|thanks|thx|appreciate|perfect|great|awesome|wonderful/)) {
-    return responses.thanks;
-  }
-
-  if (lower.match(/hi|hello|hey|good morning|good afternoon|good evening|sup|yo/)) {
-    return "Hello! 😊 Welcome to Bright Smile Dental. How can I help you today?\n\nI can help with appointments, services, hours, insurance, or emergencies — just let me know!";
-  }
-
-  if (lower.match(/bye|goodbye|see you|take care|that's all|nothing else/)) {
-    return "Thank you for chatting with us! 😊 If you need anything in the future, don't hesitate to reach out.\n\nHave a wonderful day! 🦷✨";
-  }
-
-  if (lower.match(/yes|yeah|sure|ok|yep|please|go ahead/)) {
-    bookingState = 'waiting_name';
-    bookingData = {};
-    return "Let's get you booked in! Could I get your full name to start?";
-  }
-
-  return responses.default;
 }
 
 function addMessage(role, content) {
-  const el = document.getElementById('messages');
-  const typing = document.getElementById('typing');
+  messages.push({ role, content });
+  const container = document.getElementById('messages');
   const row = document.createElement('div');
   row.className = 'msg-row ' + (role === 'user' ? 'user' : 'bot');
 
-  let html = '';
-  if (role === 'bot') html += '<div class="msg-avatar">🦷</div>';
+  if (role === 'assistant') {
+    const av = document.createElement('div');
+    av.className = 'avatar';
+    av.textContent = '🦷';
+    row.appendChild(av);
+  }
 
-  const escaped = content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  html += '<div class="msg-bubble ' + (role === 'user' ? 'user-msg' : 'bot-msg') + '">' + escaped + '</div>';
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble ' + (role === 'user' ? 'user' : 'bot');
+  bubble.textContent = content;
+  row.appendChild(bubble);
+  container.appendChild(row);
+  container.scrollTop = container.scrollHeight;
 
-  row.innerHTML = html;
-  el.insertBefore(row, typing);
-  el.scrollTop = el.scrollHeight;
-}
-
-function updateBtn() {
-  const btn = document.getElementById('sendBtn');
-  const val = document.getElementById('userInput').value.trim();
-  btn.classList.toggle('active', val.length > 0);
-}
-
-function sendSuggestion(btn) {
-  document.getElementById('userInput').value = btn.textContent;
-  sendMessage();
-}
-
-function sendMessage() {
-  const input = document.getElementById('userInput');
-  const text = input.value.trim();
-  if (!text || isLoading) return;
-
-  isLoading = true;
   msgCount++;
-  if (msgCount >= 1) document.getElementById('suggestions').classList.add('hidden');
+  if (msgCount > 2) {
+    document.getElementById('suggestions').style.display = 'none';
+  }
+}
 
-  addMessage('user', text);
+function showTyping() {
+  const container = document.getElementById('messages');
+  const row = document.createElement('div');
+  row.className = 'msg-row bot';
+  row.id = 'typing-indicator';
+  const av = document.createElement('div');
+  av.className = 'avatar';
+  av.textContent = '🦷';
+  row.appendChild(av);
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble bot';
+  bubble.style.padding = '12px 18px';
+  bubble.innerHTML = '<span class="typing-dot" style="animation-delay:0s"></span><span class="typing-dot" style="animation-delay:0.15s;margin:0 5px"></span><span class="typing-dot" style="animation-delay:0.3s"></span>';
+  row.appendChild(bubble);
+  container.appendChild(row);
+  container.scrollTop = container.scrollHeight;
+}
+
+function removeTyping() {
+  const t = document.getElementById('typing-indicator');
+  if (t) t.remove();
+}
+
+async function sendMessage(text) {
+  if (!text || !text.trim() || loading) return;
+  const input = document.getElementById('user-input');
   input.value = '';
   updateBtn();
-  input.disabled = true;
+  addMessage('user', text.trim());
+  loading = true;
+  showTyping();
 
-  document.getElementById('typing').classList.add('active');
-  const el = document.getElementById('messages');
-  el.scrollTop = el.scrollHeight;
+  try {
+    const apiMessages = messages.map(m => ({ role: m.role, content: m.content }));
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system: SYSTEM_PROMPT,
+        messages: apiMessages
+      })
+    });
 
-  const delay = 800 + Math.random() * 1200;
+    if (!response.ok) throw new Error('API request failed');
 
-  setTimeout(function() {
-    document.getElementById('typing').classList.remove('active');
-    const reply = getResponse(text);
-    addMessage('bot', reply);
-    isLoading = false;
-    input.disabled = false;
-    input.focus();
-  }, delay);
+    const data = await response.json();
+    const reply = data.content?.filter(b => b.type === 'text').map(b => b.text).join('\n') || "I'm having trouble right now. Please call us at (908) 490-6614 and we'll be happy to help.";
+    removeTyping();
+    addMessage('assistant', reply);
+  } catch(err) {
+    removeTyping();
+    addMessage('assistant', "I'm having a connection issue right now. Please try again in a moment, or call us directly at (908) 490-6614.");
+  }
+
+  loading = false;
+  updateBtn();
+  input.focus();
 }
-</script>
 
+addMessage('assistant', "Hi there! Welcome to Dental Sanctuary of Fanwood. I'm SmileBot, Dr. Patel's AI assistant. I can help you book appointments, answer questions about our services, or provide office information.\n\nHow can I help you today?");
+</script>
 </body>
 </html>
